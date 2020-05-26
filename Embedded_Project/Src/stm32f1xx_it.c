@@ -236,7 +236,8 @@ void USART1_IRQHandler(void)
 		sscanf(second, "%d", &x);
 		Sample = 1;
 		samplingRate = x;
-		samplingTime = 1000/samplingRate;
+		//samplingTime = 1000/samplingRate;
+		SysTick_Config(SystemCoreClock/samplingRate);
 		s[0] = '\0';
 		memset(second, 0, sizeof(second));
 	}else{

@@ -102,7 +102,7 @@ void HAL_IncTick()
 	if(Sample == 1){
 		flag = 1;
 		tick++;
-		if((tick >= 60000) && (flag == 1)){
+		if((tick >= 60*samplingRate) && (flag == 1)){
 			Sample = 0;
 			tick = 0;
 			flag = 0;
@@ -111,9 +111,10 @@ void HAL_IncTick()
 			sprintf(done, "BPM = %d\r\n", bpm);
 			HAL_UART_Transmit(&huart1,(uint8_t *)done, strlen(done), 10);
 			numOfSamples = 0;
+			bpm = 0;
 		}
 		
-		if((flag == 1) && (tick%samplingTime == 0) && (numOfSamples <= 60*samplingRate)){
+		if(flag == 1){
 			startADC();
 		}
 	}
@@ -162,7 +163,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	SystemCoreClockUpdate();
-	SysTick_Config(SystemCoreClock/1000);
+	//SysTick_Config(SystemCoreClock/1000);
 	HAL_UART_Receive_IT(&huart1,(uint8_t *)s, sizeof(s));
 	while (1)
 	{
