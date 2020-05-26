@@ -63,6 +63,11 @@ extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
 extern char s[];
 extern int Sample;
+extern int samplingRate;
+extern int samplingTime;
+char second[100];
+//extern uint32_t buffer;
+//extern void HAL_IncTick();
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -226,10 +231,17 @@ void USART1_IRQHandler(void)
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
 	//if(strncmp(s, "1", 20) != 0){
-		int x = 0;
-		sscanf(s, "%d", &x);
-		Sample = x;
+	int x = 0;
+	if(strcmp(s,"\r") == 0){
+		sscanf(second, "%d", &x);
+		Sample = 1;
+		samplingRate = x;
+		samplingTime = 1000/samplingRate;
 		s[0] = '\0';
+		memset(second, 0, sizeof(second));
+	}else{
+		strcat(second,s);
+	}
   /* USER CODE END USART1_IRQn 1 */
 }
 

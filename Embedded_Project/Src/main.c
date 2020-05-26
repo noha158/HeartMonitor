@@ -48,12 +48,20 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 int tick = 0;
-float pulse;
-int flag =0;
+uint32_t pulse;
+int flag =1;
 int Sample = 0;
 char temp[100];
-char endl[] = "\r\n";
 char s [] ="";
+uint32_t buffer;
+char done[1000];
+char done2[] = "Done\r\n";
+int numOfSamples = 1;
+int samplingRate = 0;
+int samplingTime = 0;
+int threshold = 3000;
+int newBeat = 1;
+int bpm = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -67,28 +75,53 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-void HAL_UART_RxCpltCallback (UART_HandleTypeDef * huart)
-{
-	HAL_UART_Receive_IT(&huart1,(uint8_t *) s , sizeof(s));
+void BPM(uint32_t val){
+	if(newBeat == 1 && (val > threshold))
+	{
+		bpm++;
+		newBeat = 0;
+	}else{
+		if (val < threshold){
+			newBeat = 1;
+		}
+	}
 }
 
-void readFromADC(){
+void startADC(){
 	HAL_ADC_Start(&hadc1);
-	HAL_ADC_PollForConversion(&hadc1, 1); //wait for the conversion to complete
-	pulse = HAL_ADC_GetValue(&hadc1); //read the ADC output
-	sprintf(temp, "%f\r\n", pulse);
+	pulse = HAL_ADC_GetValue(&hadc1);
+	BPM(pulse);
+	numOfSamples++;
+	sprintf(temp, "%d\r\n", pulse);
 	HAL_UART_Transmit(&huart1,(uint8_t *)temp, strlen(temp), 10);
-	//HAL_UART_Transmit(&huart1,(uint8_t *)endl, sizeof(endl), 10);
-	HAL_ADC_Stop(&hadc1); //stop the ADC
+	HAL_ADC_Stop(&hadc1);
 }
 
 void HAL_IncTick()
 {
-	if(Sample == 1)
-	{
+	if(Sample == 1){
+		flag = 1;
 		tick++;
+		if((tick >= 60000) && (flag == 1)){
+			Sample = 0;
+			tick = 0;
+			flag = 0;
+			samplingRate = 0;
+			samplingTime = 0;
+			sprintf(done, "BPM = %d\r\n", bpm);
+			HAL_UART_Transmit(&huart1,(uint8_t *)done, strlen(done), 10);
+			numOfSamples = 0;
+		}
+		
+		if((flag == 1) && (tick%samplingTime == 0) && (numOfSamples <= 60*samplingRate)){
+			startADC();
+		}
 	}
+}
+
+void HAL_UART_RxCpltCallback (UART_HandleTypeDef * huart)
+{
+	HAL_UART_Receive_IT(&huart1,(uint8_t *) s , sizeof(s));
 }
 /* USER CODE END 0 */
 
@@ -128,31 +161,16 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//	double pulse;
-//	char endl[] = "\r\n";
 	SystemCoreClockUpdate();
 	SysTick_Config(SystemCoreClock/1000);
 	HAL_UART_Receive_IT(&huart1,(uint8_t *)s, sizeof(s));
-	char done[] = "Done\r\n";
-  while (1)
-  {
+	while (1)
+	{
     /* USER CODE END WHILE */
-		if(Sample == 1)
-		{
-			flag = 0;
-			//HAL_UART_Transmit(&huart1,(uint8_t *)done, sizeof(done), 10);
-//    /* USER CODE BEGIN 3 */
-			if(flag == 0){
-				readFromADC();
-			}
-			if((tick >= 60000) && (flag == 0)){
-				flag = 1;
-				Sample = 0;
-				tick = 0;
-				HAL_UART_Transmit(&huart1,(uint8_t *)done, strlen(done), 10);
-			}
-		}
-  }
+
+    /* USER CODE BEGIN 3 */
+	}
+	 
   /* USER CODE END 3 */
 }
 
@@ -221,7 +239,7 @@ static void MX_ADC1_Init(void)
   */
   hadc1.Instance = ADC1;
   hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
@@ -261,7 +279,7 @@ static void MX_USART1_UART_Init(void)
 
   /* USER CODE END USART1_Init 1 */
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 9600;
+  huart1.Init.BaudRate = 115200;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
