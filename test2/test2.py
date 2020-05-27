@@ -62,7 +62,6 @@ if __name__ == '__main__':
     ser.baudrate = baudrate
     if ser.is_open is not True:
         ser.open()
-    bpm = ""
     call = 0
     while True:
         command = input("Enter your command: ")

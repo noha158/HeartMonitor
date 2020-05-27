@@ -89,13 +89,11 @@ void BPM(uint32_t val){
 }
 
 void startADC(){
-	HAL_ADC_Start(&hadc1);
 	pulse = HAL_ADC_GetValue(&hadc1);
 	BPM(pulse);
 	numOfSamples++;
 	sprintf(temp, "%d\r\n", pulse);
 	HAL_UART_Transmit(&huart1,(uint8_t *)temp, strlen(temp), 10);
-	HAL_ADC_Stop(&hadc1);
 }
 
 void HAL_IncTick()
@@ -111,6 +109,7 @@ void HAL_IncTick()
 			samplingRate = 0;
 			samplingTime = 0;
 			period = 0;
+			HAL_ADC_Stop(&hadc1);
 			HAL_SuspendTick();
 			sprintf(done, "BPM = %d\r\n", bpm);
 			HAL_UART_Transmit(&huart1,(uint8_t *)done, strlen(done), 10);
@@ -167,6 +166,8 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	HAL_UART_Receive_IT(&huart1,(uint8_t *)s, sizeof(s));
+	
+	
 	while (1)
 	{
     /* USER CODE END WHILE */

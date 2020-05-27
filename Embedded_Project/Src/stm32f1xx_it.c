@@ -244,7 +244,7 @@ void USART1_IRQHandler(void)
 			Sample = 1;
 			period = x;
 			counterTime = 0;
-			//samplingTime = 1000/samplingRate;
+			HAL_ADC_Start(&hadc1);
 			SystemCoreClockUpdate();
 			SysTick_Config(SystemCoreClock/samplingRate);
 			s[0] = '\0';
