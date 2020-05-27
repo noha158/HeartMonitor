@@ -16,6 +16,7 @@ When you run the python file, the first command prompted will be to input the co
 
 If your input is "start" then you will be prompted to input the sampling rate and the period for which you want you program to run, the period must be entered in seconds. below is a screenshot showing the flow of the input and the output plot:
 
+![Image of Yaktocat](https://github.com/noha158/HeartMonitor/tree/master/images)
 
 If your input is "bpm", then the bpm value will be displayed. If you didn't run start before running bpm, then the bpm value will be none.
 /Users/noha/Desktop/Screen Shot 2020-05-27 at 10.23.21 PM.png
