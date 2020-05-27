@@ -66,6 +66,8 @@ extern int Sample;
 extern int samplingRate;
 extern int samplingTime;
 char second[100];
+int counterTime = 0;
+extern int period;
 //extern uint32_t buffer;
 //extern void HAL_IncTick();
 /* USER CODE END EV */
@@ -193,6 +195,9 @@ void SysTick_Handler(void)
   /* USER CODE BEGIN SysTick_IRQn 0 */
 
   /* USER CODE END SysTick_IRQn 0 */
+	if(Sample==0){
+		HAL_SuspendTick();
+	}
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
 
@@ -233,13 +238,22 @@ void USART1_IRQHandler(void)
 	//if(strncmp(s, "1", 20) != 0){
 	int x = 0;
 	if(strcmp(s,"\r") == 0){
-		sscanf(second, "%d", &x);
-		Sample = 1;
-		samplingRate = x;
-		//samplingTime = 1000/samplingRate;
-		SysTick_Config(SystemCoreClock/samplingRate);
-		s[0] = '\0';
-		memset(second, 0, sizeof(second));
+		counterTime++;
+		if(counterTime == 2){
+			sscanf(second, "%d", &x);
+			Sample = 1;
+			period = x;
+			counterTime = 0;
+			//samplingTime = 1000/samplingRate;
+			SystemCoreClockUpdate();
+			SysTick_Config(SystemCoreClock/samplingRate);
+			s[0] = '\0';
+			memset(second, 0, sizeof(second));
+		}else{
+			sscanf(second, "%d", &x);
+			samplingRate = x;
+			memset(second, 0, sizeof(second));
+		}
 	}else{
 		strcat(second,s);
 	}

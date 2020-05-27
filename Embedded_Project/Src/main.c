@@ -62,6 +62,7 @@ int samplingTime = 0;
 int threshold = 3000;
 int newBeat = 1;
 int bpm = 0;
+int period = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,15 +100,18 @@ void startADC(){
 
 void HAL_IncTick()
 {
+	//HAL_UART_Transmit(&huart1,(uint8_t *)done2, strlen(done2), 10);
 	if(Sample == 1){
 		flag = 1;
 		tick++;
-		if((tick >= 60*samplingRate) && (flag == 1)){
+		if((tick >= period*samplingRate) && (flag == 1)){
 			Sample = 0;
 			tick = 0;
 			flag = 0;
 			samplingRate = 0;
 			samplingTime = 0;
+			period = 0;
+			HAL_SuspendTick();
 			sprintf(done, "BPM = %d\r\n", bpm);
 			HAL_UART_Transmit(&huart1,(uint8_t *)done, strlen(done), 10);
 			numOfSamples = 0;
@@ -162,8 +166,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	SystemCoreClockUpdate();
-	//SysTick_Config(SystemCoreClock/1000);
 	HAL_UART_Receive_IT(&huart1,(uint8_t *)s, sizeof(s));
 	while (1)
 	{

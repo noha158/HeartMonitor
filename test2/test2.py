@@ -23,13 +23,15 @@ def readData(samplingRate):
         line = ser.readline().decode('utf-8')
         line = line.strip("\n")
         line = line.strip("\r")
+        #print("val = ", str(line))
         if(line.find('B') != -1):
             stopFlag = True
             bpmFinal = line
+            return ecgList, stopFlag
         if ((len(line) > 0) and (len(line) < 5) and (line.find('\r') == -1)):
             line = float(line)
             ecgList.append(line)
-            #print("val = ", str(line))
+
     return ecgList, stopFlag
 
 
@@ -66,9 +68,12 @@ if __name__ == '__main__':
         command = input("Enter your command: ")
         if(command == "start"):
             samplingRate = input("Enter the Sampling rate: ")
+            onTime = input("Enter the sampling period: ")
             samplingRate2 = samplingRate + "\r"
+            onTime2 = onTime + '\r'
             call = call + 1
             ser.write(samplingRate2.encode())
+            ser.write(onTime2.encode())
             fig = plt.figure()
             ax = fig.add_subplot(1, 1, 1)
             xs = list(range(0, 200))
