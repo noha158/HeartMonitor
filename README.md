@@ -19,4 +19,5 @@ If your input is "start" then you will be prompted to input the sampling rate an
 ![Image of Yaktocat](https://github.com/noha158/HeartMonitor/blob/master/images/pic1.png)
 
 If your input is "bpm", then the bpm value will be displayed. If you didn't run start before running bpm, then the bpm value will be none.
+
 ![Image of Yaktocat](https://github.com/noha158/HeartMonitor/blob/master/images/pic2.png)
