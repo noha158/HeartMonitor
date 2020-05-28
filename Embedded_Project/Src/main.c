@@ -98,7 +98,6 @@ void startADC(){
 
 void HAL_IncTick()
 {
-	//HAL_UART_Transmit(&huart1,(uint8_t *)done2, strlen(done2), 10);
 	if(Sample == 1){
 		flag = 1;
 		tick++;
